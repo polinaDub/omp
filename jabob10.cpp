@@ -1,12 +1,11 @@
 #include <omp.h>
 #include <iostream>
 #include <cmath>
-#include <chrono>
+#include <time.h>
 using namespace std;
-using namespace std::chrono;
 
-#define n 2000 // размерность матрицы A
-#define THREADS 1 // количество потоков 
+#define n 2000 // Г°Г Г§Г¬ГҐГ°Г­Г®Г±ГІГј Г¬Г ГІГ°ГЁГ¶Г» A
+#define THREADS 1 // ГЄГ®Г«ГЁГ·ГҐГ±ГІГўГ® ГЇГ®ГІГ®ГЄГ®Гў 
 
 double zapol_matr(int i, int j) {
     if (i == j) return n + 1;
@@ -17,7 +16,6 @@ int main() {
 
     double x_k10[4][10] = {0}, x_k110[4][10] = {0}, b10[4][10] = {0}, bm10[4][10]={0};
     
-    // Инициализация массивов
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 10; ++j) {
             x_k10[i][j] = 1;
@@ -32,7 +30,7 @@ int main() {
     int numTR;
 
     for (int i = 0; i < 4; ++i) {
-        auto time_st = high_resolution_clock::now();
+        clock_t start = clock();
         numTR = pow(2, i);
         norm10 = 1;
         while (norm10 > 0.00001) {
@@ -61,12 +59,11 @@ int main() {
                 }
             }
         }
-        auto time_en = high_resolution_clock::now();
-        auto duration = duration_cast<milliseconds>(time_en - time_st);
+        clock_t end = clock();
+        double duration = (double)(end - start) / CLOCKS_PER_SEC;
         printf("Total execution time: %.3f seconds\n", duration.count() / 1000.0);
         vrem[i] = duration.count() / 1000.0;
-
-        // Проверка решения
+        
         for (int j = 0; j < 10; ++j) {
             for (int k = 0; k < 10; ++k) {
                 if (j == k) bm10[i][j] += x_k10[i][k] * 10;
