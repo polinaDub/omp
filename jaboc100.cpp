@@ -1,0 +1,118 @@
+#include <omp.h>
+#include <iostream>
+#include <cmath>
+#include <chrono>
+using namespace std;
+using namespace std::chrono;
+
+#define n 2000 // размерность матрицы A
+#define THREADS 1 // количество потоков 
+
+double zapol_matr(int i, int j) {
+    if (i == j) return n + 1;
+    return 1;
+}
+
+int main() {
+
+    double x_k10[4][10] = { 0 }, x_k110[4][10] = { 0 }, b10[4][10] = { 0 }, bm10[4][10] = { 0 };
+    double x_k100[4][100] = { 0 }, x_k1100[4][100] = { 0 }, b100[4][100] = { 0 }, bm100[4][100] = { 0 };
+    double x_k1000[4][1000] = { 0 }, x_k11000[4][1000] = { 0 }, b1000[4][1000] = { 0 }, bm1000[4][1000] = { 0 };
+    double x_k1500[4][1500] = { 0 }, x_k11500[4][1500] = { 0 }, b1500[4][1500] = { 0 }, bm1500[4][1500] = { 0 };
+    double x_k2000[4][2000] = { 0 }, x_k12000[4][2000] = { 0 }, b2000[4][2000] = { 0 }, bm2000[4][2000] = { 0 };
+
+    // »нициализаци€ массивов
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 10; ++j) {
+            x_k10[i][j] = 1;
+            x_k110[i][j] = 0;
+            b10[i][j] = i;
+        }
+
+        for (int j = 0; j < 100; ++j) {
+            x_k100[i][j] = 1;
+            x_k1100[i][j] = 0;
+            b100[i][j] = i;
+        }
+
+        for (int j = 0; j < 1000; ++j) {
+            x_k1000[i][j] = 1;
+            x_k11000[i][j] = 0;
+            b1000[i][j] = i;
+        }
+
+        for (int j = 0; j < 1500; ++j) {
+            x_k1500[i][j] = 1;
+            x_k11500[i][j] = 0;
+            b1500[i][j] = i;
+        }
+
+        for (int j = 0; j < 2000; ++j) {
+            x_k2000[i][j] = 1;
+            x_k12000[i][j] = 0;
+            b2000[i][j] = i;
+        }
+    }
+
+    double norm10 = 1, norm100 = 1, norm1000 = 1, norm1500 = 1, norm2000 = 1;
+    double res[4][4] = { 0 };
+    double vrem[4][4] = { 0 };
+    double cur;
+    int numTR;
+
+    for (int i = 0; i < 4; ++i) {
+        auto time_st = high_resolution_clock::now();
+        numTR = pow(2, i);
+        norm100 = 1;
+        while (norm100 > 0.00001) {
+            norm10 = 0;
+
+#pragma omp parallel num_threads(numTR) reduction(+:norm10)
+            {
+                int id = omp_get_thread_num();
+                int size = omp_get_num_threads();
+                int hag = 100 / size;
+                int rem = 100 % size;
+                int start = hag * id + (id < rem ? id : rem);
+                int end = start + hag + (id < rem ? 1 : 0);
+                if (id == size - 1) end = 100;
+
+                for (int k = start; k < end; ++k) {
+                    double sum1 = 0, sum2 = 0;
+                    for (int j = 0; j < k; j++) sum1 += zapol_matr(k, j) * x_k100[i][j];
+                    for (int j = k + 1; j < n; j++) sum2 += zapol_matr(k, j) * x_k100[i][j];
+                    x_k1100[i][k] = (b100[i][k] - sum1 - sum2) / zapol_matr(k, k);
+                }
+
+                for (int k = start; k < end; ++k) {
+                    norm100 += (x_k1100[i][k] - x_k10[i][k]) * (x_k1100[i][k] - x_k100[i][k]);
+                    x_k100[i][k] = x_k1100[i][k];
+                }
+            }
+
+        }
+        auto time_en = high_resolution_clock::now();
+        auto duration = duration_cast<milliseconds>(time_en - time_st);
+        printf("Total execution time: %.3f seconds\n", duration.count() / 1000.0);
+        vrem[0][i] = duration.count() / 1000.0;
+
+        // ѕроверка решени€
+        for (int j = 0; j < 100; ++j) {
+            for (int k = 0; k < 100; ++k) {
+                if (j == k) bm100[i][j] += x_k100[i][k] * 10;
+                else bm100[i][j] += bm100[i][k] * zapol_matr(k, k);
+            }
+        }
+        res[i][0] = 0;
+        for (int k = 0; k < 100; ++k) {
+            cur = fabs(b100[i][k] - bm100[i][k]);
+            res[i][0] = (res[0][i] <= cur) ? cur : res[0][i];
+        }
+    }
+    for (int k = 0; k < 4; ++k) {
+        cout << "nevazka: " << res[0][k] << ", " << "time: " << vrem[0][k] << endl;
+    }
+
+
+    return 0;
+}
