@@ -1,12 +1,12 @@
 #include <omp.h>
 #include <iostream>
 #include <cmath>
-#include <chrono>
+#include <time.h>
 using namespace std;
-using namespace std::chrono;
 
-#define n 2000 // размерность матрицы A
-#define THREADS 1 // количество потоков 
+
+#define n 2000 
+#define THREADS 1 
 
 double zapol_matr(int i, int j) {
     if (i == j) return n + 1;
@@ -30,10 +30,9 @@ int main() {
     int numTR;
     double cur;
     for (int i = 0; i < 4; ++i) {
-        auto time_st = high_resolution_clock::now();
+        clock_t start = clock();
         numTR = pow(2, i);
-        norm1000 = 1; // Сброс нормы для каждого нового числа потоков
-
+        norm1000 = 1; 
         while (norm1000 > 0.00001) {
             norm1000 = 0; 
 
@@ -62,8 +61,8 @@ int main() {
                 }
             }
         }
-        auto time_en = high_resolution_clock::now();
-        auto duration = duration_cast<milliseconds>(time_en - time_st);
+        clock_t end = clock();
+        double duration = (double)(end - start) / CLOCKS_PER_SEC;
         printf("Total execution time: %.3f seconds\n", duration.count() / 1000.0);
         vrem[i] = duration.count() / 1000.0;
 
