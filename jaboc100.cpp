@@ -23,40 +23,16 @@ int main() {
 
     // Инициализация массивов
     for (int i = 0; i < 4; ++i) {
-        for (int j = 0; j < 10; ++j) {
-            x_k10[i][j] = 1;
-            x_k110[i][j] = 0;
-            b10[i][j] = i;
-        }
-
         for (int j = 0; j < 100; ++j) {
             x_k100[i][j] = 1;
             x_k1100[i][j] = 0;
             b100[i][j] = i;
         }
-
-        for (int j = 0; j < 1000; ++j) {
-            x_k1000[i][j] = 1;
-            x_k11000[i][j] = 0;
-            b1000[i][j] = i;
-        }
-
-        for (int j = 0; j < 1500; ++j) {
-            x_k1500[i][j] = 1;
-            x_k11500[i][j] = 0;
-            b1500[i][j] = i;
-        }
-
-        for (int j = 0; j < 2000; ++j) {
-            x_k2000[i][j] = 1;
-            x_k12000[i][j] = 0;
-            b2000[i][j] = i;
-        }
     }
 
-    double norm10 = 1, norm100 = 1, norm1000 = 1, norm1500 = 1, norm2000 = 1;
-    double res[4][4] = { 0 };
-    double vrem[4][4] = { 0 };
+    double  norm100 = 1;
+    double res[4] = { 0 };
+    double vrem[4] = { 0 };
     double cur;
     int numTR;
 
@@ -65,9 +41,9 @@ int main() {
         numTR = pow(2, i);
         norm100 = 1;
         while (norm100 > 0.00001) {
-            norm10 = 0;
+            norm100 = 0;
 
-#pragma omp parallel num_threads(numTR) reduction(+:norm10)
+#pragma omp parallel num_threads(numTR) reduction(+:norm100)
             {
                 int id = omp_get_thread_num();
                 int size = omp_get_num_threads();
@@ -89,30 +65,27 @@ int main() {
                     x_k100[i][k] = x_k1100[i][k];
                 }
             }
-
         }
         auto time_en = high_resolution_clock::now();
         auto duration = duration_cast<milliseconds>(time_en - time_st);
         printf("Total execution time: %.3f seconds\n", duration.count() / 1000.0);
-        vrem[0][i] = duration.count() / 1000.0;
+        vrem[i] = duration.count() / 1000.0;
 
         // Проверка решения
         for (int j = 0; j < 100; ++j) {
             for (int k = 0; k < 100; ++k) {
-                if (j == k) bm100[i][j] += x_k100[i][k] * 10;
+                if (j == k) bm100[i][j] += x_k100[i][k] * 100;
                 else bm100[i][j] += bm100[i][k] * zapol_matr(k, k);
             }
         }
-        res[i][0] = 0;
+        res[i] = 0;
         for (int k = 0; k < 100; ++k) {
             cur = fabs(b100[i][k] - bm100[i][k]);
-            res[i][0] = (res[0][i] <= cur) ? cur : res[0][i];
+            res[i] = (res[i] <= cur) ? cur : res[i];
         }
     }
     for (int k = 0; k < 4; ++k) {
-        cout << "nevazka: " << res[0][k] << ", " << "time: " << vrem[0][k] << endl;
+        cout << "nevazka: " << res[k] << ", " << "time: " << vrem[k] << endl;
     }
-
-
     return 0;
 }
