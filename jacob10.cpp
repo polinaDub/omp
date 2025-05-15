@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cmath>
 #include <сtime>
-#include<stdlib.>
+#include<stdlib.h>
 using namespace std;
 
 #define n 2000
