@@ -1,11 +1,11 @@
 #include <omp.h>
 #include <iostream>
 #include <cmath>
-#include <time.h>
+#include <сtime>
+#include<stdlib.h>
 using namespace std;
 
-#define n 2000 // ðàçìåðíîñòü ìàòðèöû A
-#define THREADS 1 // êîëè÷åñòâî ïîòîêîâ 
+#define n 2000 
 
 double zapol_matr(int i, int j) {
     if (i == j) return n + 1;
@@ -41,30 +41,29 @@ int main() {
                 int size = omp_get_num_threads();
                 int hag = 1500 / size;
                 int rem = 1500 % size;
-                int start = hag * id + (id < rem ? id : rem);
-                int end = start + hag + (id < rem ? 1 : 0);
+                int start_id = hag * id + (id < rem ? id : rem);
+                int end = start_id + hag + (id < rem ? 1 : 0);
                 if (id == size - 1) end = 1500;
 
-                for (int k = start; k < end; ++k) {
+                for (int k = start_id; k < end; ++k) {
                     double sum1 = 0, sum2 = 0;
                     for (int j = 0; j < k; j++)
                         sum1 += zapol_matr(k, j) * x_k1500[i][j];
-                    for (int j = k + 1; j < 1000; j++)
+                    for (int j = k + 1; j < 1500; j++)
                         sum2 += zapol_matr(k, j) * x_k1500[i][j];
                     x_k11500[i][k] = (b1500[i][k] - sum1 - sum2) / zapol_matr(k, k);
                 }
 
-                for (int k = start; k < end; ++k) {
+                for (int k = start_id; k < end; ++k) {
                     norm1500 += (x_k11500[i][k] - x_k1500[i][k]) * (x_k11500[i][k] - x_k1500[i][k]);
                     x_k1500[i][k] = x_k11500[i][k];
                 }
             }
         }
         clock_t end = clock();
-        double duration = (double)(end - start) / CLOCKS_PER_SEC;
-        printf("Total execution time: %.3f seconds\n", duration.count() / 1000.0);
-        vrem[i] = duration.count() / 1000.0;
-
+         double duration = static_cas<double>(end - start)* 1000 / CLOCKS_PER_SEC;
+        vrem[i] = duration;
+        
         for (int j = 0; j < 1500; ++j) {
             for (int k = 0; k < 1500; ++k) {
                 if (j == k) bm1500[i][j] += x_k1500[i][k] * 1500;
