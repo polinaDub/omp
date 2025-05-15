@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cmath>
 #include <сtime>
-#include<stdlib.h>
+#include<cstdlib>
 using namespace std;
 
 #define n 2000
@@ -15,7 +15,7 @@ double zapol_matr(int i, int j) {
 int main() {
 
     double x_k10[4][10] = {0}, x_k110[4][10] = {0}, b10[4][10] = {0}, bm10[4][10]={0};
-    
+    #pragma omp parallel for collapse(2)
     for (int i = 0; i < 4; ++i) {
         for (int j = 0; j < 10; ++j) {
             x_k10[i][j] = 1;
@@ -60,7 +60,7 @@ int main() {
             }
         }
         clock_t end = clock();
-        double duration = static_cas<double>(end - start)* 1000 / CLOCKS_PER_SEC;
+        double duration = static_cast<double>(end - start)* 1000 / CLOCKS_PER_SEC;
         vrem[i] = duration;
         
         for (int j = 0; j < 10; ++j) {
