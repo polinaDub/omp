@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cmath>
 #include <сtime>
-#include<stdlib.h>
+#include<cstdlib>
 using namespace std;
 
 #define n 2000 
@@ -61,7 +61,7 @@ int main() {
             }
         }
         clock_t end = clock();
-         double duration = static_cas<double>(end - start)* 1000 / CLOCKS_PER_SEC;
+         double duration = static_cast<double>(end - start)* 1000 / CLOCKS_PER_SEC;
         vrem[i] = duration;
         
         for (int j = 0; j < 1500; ++j) {
