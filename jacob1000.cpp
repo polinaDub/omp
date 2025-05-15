@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cmath>
 #include <сtime>
-#include<stdlib.>
+#include<stdlib.h>
 using namespace std;
 
 
@@ -62,7 +62,7 @@ int main() {
             }
         }
         clock_t end = clock();
-        double duration = static_cas<(double>(end - start)* 1000 / CLOCKS_PER_SEC;
+        double duration = static_cas<double>(end - start)* 1000 / CLOCKS_PER_SEC;
         vrem[i] = duration;
         
         for (int j = 0; j < 1000; ++j) {
