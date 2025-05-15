@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cmath>
 #include <сtime>
+#include<stdlib.>
 using namespace std;
 
 #define n 2000
@@ -41,25 +42,25 @@ int main() {
                 int size = omp_get_num_threads();
                 int hag = 10 / size;
                 int rem = 10 % size;
-                int start = hag * id + (id < rem ? id : rem);
-                int end = start + hag + (id < rem ? 1 : 0);
+                int start_id = hag * id + (id < rem ? id : rem);
+                int end = start_id + hag + (id < rem ? 1 : 0);
                 if (id == size - 1) end = 10;
 
-                for (int k = start; k < end; ++k) {
+                for (int k = start_id; k < end; ++k) {
                     double sum1 = 0, sum2 = 0;
                     for (int j = 0; j < k; j++) sum1 += zapol_matr(k, j) * x_k10[i][j];
                     for (int j = k + 1; j < 10; j++) sum2 += zapol_matr(k, j) * x_k10[i][j];
                     x_k110[i][k] = (b10[i][k] - sum1 - sum2) / zapol_matr(k, k);
                 }
 
-                for (int k = start; k < end; ++k) {
+                for (int k = start_id; k < end; ++k) {
                     norm10 += (x_k110[i][k] - x_k10[i][k]) * (x_k110[i][k] - x_k10[i][k]);
                     x_k10[i][k] = x_k110[i][k];
                 }
             }
         }
         clock_t end = clock();
-        double duration = (double)(end - start)* 1000 / CLOCKS_PER_SEC;
+        double duration = static_cas<(double>(end - start)* 1000 / CLOCKS_PER_SEC;
         vrem[i] = duration;
         
         for (int j = 0; j < 10; ++j) {
