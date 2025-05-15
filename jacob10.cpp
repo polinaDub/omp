@@ -1,11 +1,10 @@
 #include <omp.h>
 #include <iostream>
 #include <cmath>
-#include <time.h>
+#include <сtime>
 using namespace std;
 
-#define n 2000 // ðàçìåðíîñòü ìàòðèöû A
-#define THREADS 1 // êîëè÷åñòâî ïîòîêîâ 
+#define n 2000
 
 double zapol_matr(int i, int j) {
     if (i == j) return n + 1;
@@ -49,7 +48,7 @@ int main() {
                 for (int k = start; k < end; ++k) {
                     double sum1 = 0, sum2 = 0;
                     for (int j = 0; j < k; j++) sum1 += zapol_matr(k, j) * x_k10[i][j];
-                    for (int j = k + 1; j < n; j++) sum2 += zapol_matr(k, j) * x_k10[i][j];
+                    for (int j = k + 1; j < 10; j++) sum2 += zapol_matr(k, j) * x_k10[i][j];
                     x_k110[i][k] = (b10[i][k] - sum1 - sum2) / zapol_matr(k, k);
                 }
 
@@ -60,9 +59,8 @@ int main() {
             }
         }
         clock_t end = clock();
-        double duration = (double)(end - start) / CLOCKS_PER_SEC;
-        printf("Total execution time: %.3f seconds\n", duration.count() / 1000.0);
-        vrem[i] = duration.count() / 1000.0;
+        double duration = (double)(end - start)* 1000 / CLOCKS_PER_SEC;
+        vrem[i] = duration;
         
         for (int j = 0; j < 10; ++j) {
             for (int k = 0; k < 10; ++k) {
