@@ -14,33 +14,33 @@ void zpoln_matr() {
 #pragma omp parallel for
 	for (int i = 0; i < n; ++i) {
 		for (int j = 0; j < n; ++j) {
-			A[i][j] = (i == j) ? n : 1;  // На диагонали n, остальное 1
-			U[i][j] = 0; //нулевая матрица
-			L[i][j] = (i == j) ? 1 : 0; // единичная матрица
+			A[i][j] = (i == j) ? n : 1;  // ГЌГ  Г¤ГЁГ ГЈГ®Г­Г Г«ГЁ n, Г®Г±ГІГ Г«ГјГ­Г®ГҐ 1
+			U[i][j] = 0; //Г­ГіГ«ГҐГўГ Гї Г¬Г ГІГ°ГЁГ¶Г 
+			L[i][j] = (i == j) ? 1 : 0; // ГҐГ¤ГЁГ­ГЁГ·Г­Г Гї Г¬Г ГІГ°ГЁГ¶Г 
 		}
 	}
 }
 
-static void razlogenie_lu(int i) {// LU-разложение для блока матрицы размером r, начиная (i,i)
+static void razlogenie_lu(int i) {// LU-Г°Г Г§Г«Г®Г¦ГҐГ­ГЁГҐ Г¤Г«Гї ГЎГ«Г®ГЄГ  Г¬Г ГІГ°ГЁГ¶Г» Г°Г Г§Г¬ГҐГ°Г®Г¬ r, Г­Г Г·ГЁГ­Г Гї (i,i)
 	int end = (i + r < n) ? i + r : n;
 
-	double sum1 = 0; //вычислене значений вершнетреугольной матрицы реализация метода гаусса для длочного разложения
+	double sum1 = 0; //ГўГ»Г·ГЁГ±Г«ГҐГ­ГҐ Г§Г­Г Г·ГҐГ­ГЁГ© ГўГҐГ°ГёГ­ГҐГІГ°ГҐГіГЈГ®Г«ГјГ­Г®Г© Г¬Г ГІГ°ГЁГ¶Г» Г°ГҐГ Г«ГЁГ§Г Г¶ГЁГї Г¬ГҐГІГ®Г¤Г  ГЈГ ГіГ±Г±Г  Г¤Г«Гї Г¤Г«Г®Г·Г­Г®ГЈГ® Г°Г Г§Г«Г®Г¦ГҐГ­ГЁГї
 	for (int l = i; l < end; ++l) {
 		for (int k = i; k <= l; ++k) {
 			sum1 = 0;
-			for (int t = i; t < k; ++t) // Вычисляем U[k][j] для j >= k
+			for (int t = i; t < k; ++t) // Г‚Г»Г·ГЁГ±Г«ГїГҐГ¬ U[k][j] Г¤Г«Гї j >= k
 				sum1 += L[k][t] * U[t][l];
 			U[k][l] = A[k][l] - sum1;
 		}
-		for (int k = i + 1; k < end; ++k) { //вычислене значений нижнетреугольной матрицы
+		for (int k = i + 1; k < end; ++k) { //ГўГ»Г·ГЁГ±Г«ГҐГ­ГҐ Г§Г­Г Г·ГҐГ­ГЁГ© Г­ГЁГ¦Г­ГҐГІГ°ГҐГіГЈГ®Г«ГјГ­Г®Г© Г¬Г ГІГ°ГЁГ¶Г»
 			sum1 = 0;
-			for (int t = i; t < l; ++t) // Вычисляем L[i][k] для i > k
+			for (int t = i; t < l; ++t) // Г‚Г»Г·ГЁГ±Г«ГїГҐГ¬ L[i][k] Г¤Г«Гї i > k
 				sum1 += L[k][t] * U[t][l];
 			L[k][l] = (A[k][l] - sum1) / U[l][l];
 		}
 	}
 }
-static void rewie_U(int i, int j) { // обновление справа от блока
+static void rewie_U(int i, int j) { // Г®ГЎГ­Г®ГўГ«ГҐГ­ГЁГҐ Г±ГЇГ°Г ГўГ  Г®ГІ ГЎГ«Г®ГЄГ 
 	double s1 = 0;
 	for (int l = j; l < n; ++l) {
 		for (int k = i; k < i + r; ++k) {
@@ -51,7 +51,7 @@ static void rewie_U(int i, int j) { // обновление справа от блока
 		}
 	}
 }
-static void rewie_L(int i, int j) { // обновление под текущим блоком
+static void rewie_L(int i, int j) { // Г®ГЎГ­Г®ГўГ«ГҐГ­ГЁГҐ ГЇГ®Г¤ ГІГҐГЄГіГ№ГЁГ¬ ГЎГ«Г®ГЄГ®Г¬
 	double s1 = 0;
 	for (int k = i; k < n; ++k) {
 		for (int l = j + r - 1; l >= j; --l) {
@@ -75,11 +75,11 @@ static void reductia(int i) {
 }
 
 static void lu(int i) {
-	if (n - i <= r) // если текущий блок меньше r
+	if (n - i <= r) // ГҐГ±Г«ГЁ ГІГҐГЄГіГ№ГЁГ© ГЎГ«Г®ГЄ Г¬ГҐГ­ГјГёГҐ r
 		razlogenie_lu(i);
-	if (i >= n) return; // блок делится и дальше выполняется алгоритм. 
+	if (i >= n) return; // ГЎГ«Г®ГЄ Г¤ГҐГ«ГЁГІГ±Гї ГЁ Г¤Г Г«ГјГёГҐ ГўГ»ГЇГ®Г«Г­ГїГҐГІГ±Гї Г Г«ГЈГ®Г°ГЁГІГ¬. 
 
-#pragma omp task // создание задач 
+#pragma omp task // Г±Г®Г§Г¤Г Г­ГЁГҐ Г§Г Г¤Г Г· 
 	razlogenie_lu(i);
 #pragma omp taskwait
 #pragma omp task
@@ -97,7 +97,7 @@ int main() {
 		zpoln_matr();
 
 		int num_tread = pow(2, num);
-		clock_t start_time = clock(); // начало времени
+		clock_t start_time = clock(); // Г­Г Г·Г Г«Г® ГўГ°ГҐГ¬ГҐГ­ГЁ
 
 #pragma omp parallel num_threads(num_tread)
 #pragma omp single nowait
